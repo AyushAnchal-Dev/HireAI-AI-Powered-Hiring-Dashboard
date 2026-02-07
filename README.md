@@ -238,7 +238,8 @@ Recruiter reviews AI insights & shortlists
 📦 Installation & Setup
 1️⃣ Clone Repository
 git clone https://github.com/AyushAnchal-Dev/HireAI-AI-Powered-Hiring-Dashboard
-cd ai-hiring-dashboard
+cd HireAI-AI-Powered-Hiring-Dashboard
+
 
 2️⃣ Install Dependencies
 npm install
