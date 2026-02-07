@@ -162,8 +162,6 @@ shadcn/ui components
 
 Framer Motion animations
 
-Spline 3D hero section
-
 Glassmorphism cards
 
 Dark mode support
