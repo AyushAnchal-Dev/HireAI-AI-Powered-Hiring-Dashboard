@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  password  String?
+  role      Role     @default(candidate)
+  createdAt DateTime @default(now())
+
+  // Existing relations
+  jobs       Job[]
+  candidates Candidate[]
+  
+  // New comprehensive profile relation
+  profile    Profile?
+  
+  // New relations for Messages (Sent and Received)
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  
+  // New relations for Solutions
+  solutions Solution[]
+  
+  // New relations for created Problems (Recruiter)
+  problems Problem[]
+
+  // New relations for Quizzes
+  quizzes     Quiz[]
+  quizResults QuizResult[]
+}
+
+model Profile {
+  id        String @id @default(uuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id])
+  
+  bio       String?
+  skills    String[]
+  
+  // For Candidate
+  projects  Project[]
+  learning  Learning[]
+  certs     Certification[]
+  
+  // For Recruiter
+  company   String?
+  hiringHistory Json? // simplified history tracking
+}
+
+model Project {
+  id        String @id @default(uuid())
+  title     String
+  techStack String[]
+  link      String?
+  status    String // Live | Completed
+  
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id])
+}
+
+model Learning {
+  id      String @id @default(uuid())
+  topic   String
+  source  String?
+  status  String // Learning | Completed
+  
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id])
+}
+
+model Certification {
+  id        String @id @default(uuid())
+  name      String
+  issuer    String
+  year      Int
+  
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id])
+}
+
+model Problem {
+  id          String @id @default(uuid())
+  title       String
+  description String
+  difficulty  String
+  tags        String[]
+  
+  recruiterId String
+  recruiter   User   @relation(fields: [recruiterId], references: [id])
+  
+  // Relations for Automation
+  templateId    String?
+  template      QuestionTemplate? @relation(fields: [templateId], references: [id])
+  
+  questionPackId String?
+  questionPack   QuestionPack? @relation(fields: [questionPackId], references: [id])
+  
+  testCases     TestCase[]
+  solutions     Solution[]
+}
+
+model QuestionTemplate {
+  id          String   @id @default(uuid())
+  pattern     String   // e.g., "Sliding Window"
+  category    String?  // e.g., "Array", "Graph", "DP" (For Trend Engine)
+  logicId     String?  // e.g., "array_sum" (Links to code generator)
+  difficulty  String
+  basePrompt  String?  // Optional now (used for AI fallback)
+  createdAt   DateTime @default(now())
+  
+  problems    Problem[]
+}
+
+model QuestionPack {
+  id        String   @id @default(uuid())
+  title     String   // e.g., "Daily Challenge"
+  type      String   // Daily, Weekly, Custom
+  date      DateTime @default(now())
+  
+  problems  Problem[]
+}
+
+model TestCase {
+  id        String  @id @default(uuid())
+  input     String
+  output    String
+  isHidden  Boolean @default(false)
+  
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id])
+}
+
+model Solution {
+  id         String @id @default(uuid())
+  code       String
+  language   String
+  score      Int?
+  feedback   String?
+  
+  // Judge0 Metrics
+  runtime    Float?
+  memory     Float?
+  passedTests Int?
+  
+  problemId  String
+  problem    Problem @relation(fields: [problemId], references: [id])
+  
+  userId     String
+  user       User    @relation(fields: [userId], references: [id])
+  
+  createdAt  DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  
+  fromId    String
+  from      User     @relation("SentMessages", fields: [fromId], references: [id])
+  
+  toId      String
+  to        User     @relation("ReceivedMessages", fields: [toId], references: [id])
+}
+
+model Quiz {
+  id        String   @id @default(uuid())
+  title     String
+  questions Json     // Stores array of { question: string, options: string[], answer: number }
+  timeLimit Int      // in minutes
+  createdAt DateTime @default(now())
+
+  recruiterId String
+  recruiter   User   @relation(fields: [recruiterId], references: [id])
+
+  results     QuizResult[]
+}
+
+model QuizResult {
+  id        String   @id @default(uuid())
+  score     Int
+  total     Int
+  createdAt DateTime @default(now())
+
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Job {
+  id          String   @id @default(uuid())
+  title       String
+  department  String
+  description String
+  skills      String[]
+  createdAt   DateTime @default(now())
+
+  recruiter   User   @relation(fields: [recruiterId], references: [id])
+  recruiterId String
+
+  applications Application[]
+}
+
+model Candidate {
+  id        String   @id @default(uuid())
+  name      String
+  resumeUrl String
+  skills    String[]
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  applications Application[]
+}
+
+model Application {
+  id         String   @id @default(uuid())
+  match      Int
+  confidence String
+  status     String
+  createdAt  DateTime @default(now())
+
+  job       Job       @relation(fields: [jobId], references: [id])
+  jobId     String
+
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+  candidateId String
+}
+
+enum Role {
+  recruiter
+  candidate
+}
