@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { generateProblem } from "@/lib/dsa-generator";
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { getGenerator } from "@/lib/generators/registry";
 import { getTrendingCategory, getTemplatesForTrend } from "@/lib/generators/trend-engine";
 import { generateDailyBatch } from "@/lib/generators/advanced/batch-engine";
