@@ -27,7 +27,6 @@ export async function POST(req: Request) {
     const job = await prisma.job.create({
       data: {
         title: body.title,
-        // @ts-expect-error - Prisma types regeneration verification pending
         department: body.department,
         description: body.description,
         recruiterId: (session.user as any).id,
