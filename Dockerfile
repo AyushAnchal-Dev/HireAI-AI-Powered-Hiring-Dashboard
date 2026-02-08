@@ -17,7 +17,11 @@ COPY . .
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
 
 # Build Next.js
-RUN npm run build
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
+    OPENAI_API_KEY="dummy_key_for_build" \
+    RESEND_API_KEY="dummy_key_for_build" \
+    AUTH_SECRET="dummy_secret_for_build" \
+    npm run build
 
 # 4. Runner
 FROM base AS runner
