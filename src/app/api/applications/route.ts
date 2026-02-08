@@ -96,7 +96,8 @@ export async function POST(req: Request) {
                 candidateId,
                 jobId,
                 status: "PENDING",
-                match: 0 // Will be updated by AI worker or separate logic
+                match: 0, // Will be updated by AI worker or separate logic
+                confidence: "Pending" // Added default value
             }
         });
 
