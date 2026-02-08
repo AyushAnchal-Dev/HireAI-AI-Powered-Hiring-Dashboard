@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+
+
+
+
 interface Job {
     id: string;
     title: string;
