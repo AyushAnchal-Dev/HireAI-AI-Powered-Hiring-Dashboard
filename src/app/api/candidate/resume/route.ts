@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import OpenAI from "openai";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-
-// ... (previous imports)
-
+// GET Method to check resume status
 export async function GET(req: Request) {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,8 +23,6 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    // ... existing POST logic
-
     try {
         const session = await auth();
         if (!session?.user || (session.user as any).role !== "candidate") {
@@ -38,8 +36,18 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "No resume uploaded" }, { status: 400 });
         }
 
-        // 1. Parse PDF using pdf2json
         const buffer = Buffer.from(await file.arrayBuffer());
+
+        // 1. Save File to Public Directory
+        const filename = `${(session.user as any).id}-${Date.now()}.pdf`;
+        const uploadDir = join(process.cwd(), "public", "uploads"); // Ensure folder exists
+
+        await mkdir(uploadDir, { recursive: true });
+        await writeFile(join(uploadDir, filename), buffer);
+
+        const resumeUrl = `/uploads/${filename}`;
+
+        // 2. Parse PDF
         let resumeText = "";
 
         try {
@@ -96,7 +104,7 @@ export async function POST(req: Request) {
             where: { userId: (session.user as any).id },
             data: {
                 skills: skills,
-                resumeUrl: "uploaded-resume.pdf", // Placeholder
+                resumeUrl: resumeUrl, // Updated to real file path
             },
         });
 

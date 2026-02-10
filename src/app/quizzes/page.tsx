@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 interface Quiz {
     id: string;
@@ -15,17 +16,31 @@ interface Quiz {
 }
 
 export default function QuizzesPage() {
+    const { data: session } = useSession();
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-    // In a real app we'd check role to show Create button
-    const [role, setRole] = useState("candidate");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/quizzes")
-            .then(res => res.json())
-            .then(data => setQuizzes(data));
-
-        fetch("/api/profile").then(res => res.json()).then(d => d.role && setRole(d.role)).catch(() => { });
+        const fetchQuizzes = async () => {
+            try {
+                const res = await fetch("/api/quizzes");
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    const unique = data.filter((q, index, self) =>
+                        index === self.findIndex((t) => t.id === q.id || t.title === q.title)
+                    );
+                    setQuizzes(unique);
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchQuizzes();
     }, []);
+
+    const role = (session?.user as any)?.role || "candidate";
 
     return (
         <div className="min-h-screen bg-[#060B1A]">
@@ -67,7 +82,7 @@ export default function QuizzesPage() {
                         </motion.div>
                     ))}
 
-                    {!quizzes.length && (
+                    {!loading && !quizzes.length && (
                         <p className="text-gray-500 col-span-full text-center py-10">No quizzes available yet.</p>
                     )}
                 </div>

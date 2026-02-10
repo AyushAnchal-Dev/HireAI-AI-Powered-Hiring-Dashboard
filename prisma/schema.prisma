@@ -11,6 +11,7 @@ model User {
   id        String   @id @default(uuid())
   name      String?
   email     String   @unique
+  image     String?
   password  String?
   role      Role     @default(candidate)
   createdAt DateTime @default(now())
@@ -216,6 +217,10 @@ model Candidate {
   name      String
   resumeUrl String
   skills    String[]
+  bio       String?      // New
+  projects  Json?        // New: [{ title, desc, link }]
+  education Json?        // New: [{ degree, school, year }]
+  experience Json?       // New: [{ role, company, duration }]
   createdAt DateTime @default(now())
 
   user   User   @relation(fields: [userId], references: [id])

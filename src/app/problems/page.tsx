@@ -35,7 +35,13 @@ export default function ProblemsPage() {
                 const problemsData = await problemsRes.json();
 
                 if (Array.isArray(problemsData)) {
-                    setProblems(problemsData);
+                    // Filter duplicates by title to ensure unique listing
+                    const uniqueProblems = problemsData.filter((p, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.title === p.title
+                        ))
+                    );
+                    setProblems(uniqueProblems);
                 } else {
                     console.error("API returned non-array for problems:", problemsData);
                     setProblems([]);
@@ -122,7 +128,7 @@ export default function ProblemsPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                className="glass-card p-6 rounded-xl hover:bg-white/10 transition-colors flex justify-between items-center cursor-pointer"
+                                className="glass-card p-6 rounded-xl hover:bg-white/10 transition-colors flex justify-between items-center cursor-pointer border border-white/5"
                             >
                                 <div>
                                     <h3 className="text-lg font-semibold text-white mb-2">{p.title}</h3>

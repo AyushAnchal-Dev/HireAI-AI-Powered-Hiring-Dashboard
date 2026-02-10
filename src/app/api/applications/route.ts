@@ -15,31 +15,55 @@ export async function GET() {
 
         if (!user) return new NextResponse("User not found", { status: 404 });
 
-        // Assuming recruiter wants to see all applications for THEIR jobs
-        // Prisma query needs nested filtering
+        // Determine role and set query
+        const isRecruiter = user.role === 'recruiter';
+        let whereClause: any = {};
+
+        if (isRecruiter) {
+            whereClause = { job: { recruiterId: user.id } };
+        } else {
+            // Find candidate profile
+            const candidateProfile = await prisma.candidate.findFirst({
+                where: { userId: user.id }
+            });
+            if (candidateProfile) {
+                whereClause = { candidateId: candidateProfile.id };
+            } else {
+                return NextResponse.json([]); // No candidate profile
+            }
+        }
+
         const applications = await prisma.application.findMany({
-            where: {
-                job: {
-                    recruiterId: user.id
-                }
-            },
+            where: whereClause,
             include: {
                 candidate: {
                     include: {
-                        user: { select: { email: true } }
+                        user: { select: { email: true, name: true, id: true } }
                     }
                 },
-                job: { select: { title: true } }
+                job: {
+                    select: {
+                        title: true,
+                        recruiter: {
+                            select: { id: true, name: true, email: true }
+                        }
+                    }
+                }
             },
             orderBy: { createdAt: 'desc' }
         });
 
-        // Flatten the response for frontend
         const formattedApplications = applications.map(app => ({
             ...app,
             candidate: {
                 ...app.candidate,
-                email: app.candidate.user.email
+                email: app.candidate.user.email,
+                userId: app.candidate.user.id
+            },
+            job: {
+                ...app.job,
+                recruiterId: app.job.recruiter.id, // For candidate to know who to msg
+                recruiterName: app.job.recruiter.name
             }
         }));
 

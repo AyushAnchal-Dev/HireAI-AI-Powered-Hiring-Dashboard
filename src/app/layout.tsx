@@ -8,6 +8,7 @@ export const metadata: Metadata = {
     default: "HireAI – AI-Powered Hiring Platform",
     template: "%s | HireAI",
   },
+  metadataBase: new URL("https://hireai-ai-powered-hiring-dashboard-production.up.railway.app"),
   description:
     "HireAI is an AI-powered hiring dashboard with automated DSA assessments, AI code review, recruiter & candidate dashboards.",
   keywords: [

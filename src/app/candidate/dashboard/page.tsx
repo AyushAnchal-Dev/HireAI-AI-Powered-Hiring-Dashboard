@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import AnimatedBackground from "@/components/login/AnimatedBackground";
 import { Loader2, Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 type Job = {
     id: string;
@@ -164,7 +166,15 @@ export default function CandidateDashboard() {
                             Candidate Portal
                         </h1>
                     </div>
-                    <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-white/5">
+
+                    <nav className="hidden md:flex items-center gap-6">
+                        <Link href="/candidate/dashboard" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Dashboard</Link>
+                        <Link href="/candidate/messages" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Messages</Link>
+                        <Link href="/quizzes" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Assessments</Link>
+                        <Link href="/problems" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Practice</Link>
+                    </nav>
+
+                    <Button onClick={() => signOut()} variant="ghost" className="text-gray-400 hover:text-white hover:bg-white/5">
                         Log Out
                     </Button>
                 </header>

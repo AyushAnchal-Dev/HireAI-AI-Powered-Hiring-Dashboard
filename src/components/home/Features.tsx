@@ -20,7 +20,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="py-24 bg-white">
+    <section id="features" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -29,7 +29,7 @@ export default function Features() {
           viewport={{ once: true }}
           className="grid md:grid-cols-3 gap-6"
         >
-          
+
           {features.map((item, i) => (
             <Card className="transition hover:shadow-lg hover:-translate-y-1" key={i}>
               <CardContent className="p-6">

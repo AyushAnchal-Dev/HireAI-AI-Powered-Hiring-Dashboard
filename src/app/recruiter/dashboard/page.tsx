@@ -5,6 +5,8 @@ import CreateJobModal from "@/components/dashboard/CreateJobModal";
 import JobsTable from "@/components/dashboard/JobsTable";
 import { motion, Variants } from "framer-motion";
 import AnimatedBackground from "@/components/login/AnimatedBackground";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function RecruiterDashboard() {
   const containerVariants: Variants = {
@@ -58,7 +60,12 @@ export default function RecruiterDashboard() {
         <motion.div variants={itemVariants} className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-semibold tracking-tight text-white">Recent Postings</h3>
-            <CreateJobModal />
+            <div className="flex gap-4">
+              <Link href="/recruiter/profile">
+                <Button variant="outline" className="text-white hover:text-white border-white/20 hover:bg-white/10">Profile</Button>
+              </Link>
+              <CreateJobModal />
+            </div>
           </div>
           <JobsTable />
         </motion.div>
